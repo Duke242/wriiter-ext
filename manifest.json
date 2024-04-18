@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "My Extension",
+  "icons": {
+    "32": "icon32.png",
+    "16": "icon32.png",
+    "48": "icon32.png"
+  },
+  "version": "1.0.0",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "index.html"
+  },
+  "permissions": ["scripting", "activeTab", "cookies", "contextMenus"],
+  "host_permissions": ["http://*/*", "https://*/*"]
+}

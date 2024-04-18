@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sign In</title>
+    <style>
+      #signInButton {
+        background-color: #2196f3;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out;
+        display: block;
+        margin: 0 auto;
+      }
+
+      #signInButton:hover {
+        background-color: #0b7dda;
+        transform: scale(1.05);
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      header img {
+        height: 32px;
+        margin-right: 10px;
+      }
+    </style>
+    <script src="index.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <img src="icon32.png" alt="Writter Icon" />
+      <h1>Wriiter</h1>
+    </header>
+    <div id="dashboardContent"></div>
+    <button id="signInButton">Sign In</button>
+  </body>
+</html>
