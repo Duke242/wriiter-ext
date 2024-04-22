@@ -13,9 +13,18 @@
         overflow-y: auto;
       }
 
-      #api-response {
-        white-space: pre-wrap;
-        word-wrap: break-word;
+      .response-container {
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        padding: 16px;
+      }
+
+      .response-item {
+        margin-bottom: 12px;
+      }
+
+      .response-label {
+        font-weight: bold;
       }
 
       .loading {
@@ -29,8 +38,7 @@
     </style>
   </head>
   <body>
-    <!-- <div id="api-response" class="loading">Loading</div> -->
-    <p>Api response</p>
+    <div id="api-response" class="loading">Loading...</div>
     <script src="apiResponse.js"></script>
   </body>
 </html>

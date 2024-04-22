@@ -1,6 +1,6 @@
 const contextMenuItem = {
   id: "my-context-menu",
-  title: "My Context Menu Item",
+  title: "Wriiter",
   contexts: ["page", "selection"],
 }
 
@@ -19,17 +19,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     }
   }
 })
-
-function handleContextMenuClick(info) {
-  if (info.selectionText) {
-    console.log("Context")
-    const selectedText = info.selectionText
-    console.log("Selected text:", selectedText)
-    sendTextToAPI(selectedText)
-  } else {
-    console.log("No text selected")
-  }
-}
 
 function sendTextToAPI(text) {
   const apiUrl = "http://localhost:3000/api/openai"
@@ -112,8 +101,6 @@ function showApiResponse(data) {
   // Send the API response to the popup
   chrome.runtime.sendMessage({ type: "apiResponse", data: data })
 }
-
-chrome.contextMenus.onClicked.addListener(handleContextMenuClick)
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "getApiResponse") {
