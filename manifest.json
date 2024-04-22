@@ -25,6 +25,13 @@
       "matches": ["<all_urls>"]
     }
   ],
-  "permissions": ["scripting", "activeTab", "cookies", "contextMenus"],
+  "permissions": [
+    "scripting",
+    "activeTab",
+    "cookies",
+    "contextMenus",
+    "windows",
+    "tabs"
+  ],
   "host_permissions": ["http://*/*", "https://*/*"]
 }

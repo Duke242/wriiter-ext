@@ -5,3 +5,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // You can update the DOM or perform any other necessary actions here
   }
 })
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "getAccessToken") {
+    const accessToken = localStorage.getItem(
+      "sb-osaezyuvvddcvfitbqyo-auth-token"
+    )
+    sendResponse({ accessToken: accessToken })
+  }
+})

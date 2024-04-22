@@ -1,24 +1,24 @@
-// chrome.cookies.get(
-//   { url: "https://your-website.com", name: "session_cookie" },
-//   function (cookie) {
-//     if (cookie) {
-//       // Cookie found, you can access cookie.value to get the session information
-//       const sessionInfo = cookie.value
-//       // Use the session information to authenticate the user within your extension
-//     } else {
-//       // Cookie not found, handle the case where the user is not authenticated
-//     }
-//   }
-// )
-
 const contextMenuItem = {
   id: "my-context-menu",
   title: "My Context Menu Item",
   contexts: ["page", "selection"],
-  // onClicked: handleContextMenuClick, // Call the handleContextMenuClick function
 }
 
 chrome.contextMenus.create(contextMenuItem, () => {})
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "my-context-menu") {
+    if (info.selectionText) {
+      const selectedText = info.selectionText
+
+      sendTextToAPI(selectedText)
+
+      openPopup()
+    } else {
+      console.log("No text selected")
+    }
+  }
+})
 
 function handleContextMenuClick(info) {
   if (info.selectionText) {
@@ -32,63 +32,85 @@ function handleContextMenuClick(info) {
 }
 
 function sendTextToAPI(text) {
-  console.log("send text")
   const apiUrl = "http://localhost:3000/api/openai"
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ text }),
-  }
 
-  fetch(apiUrl, requestOptions)
-    .then((response) => {
-      if (response.ok) {
-        return response.json()
+  // Get the user's access token from the website's cookies
+  chrome.cookies.get(
+    {
+      url: "https://www.wriiter.co", // Replace with your website's URL
+      name: "sb-osaezyuvvddcvfitbqyo-auth-token", // Replace with the name of the cookie storing the access token
+    },
+    (cookie) => {
+      if (cookie) {
+        const accessToken = cookie.value
+
+        const requestOptions = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`, // Include the access token in the Authorization header
+          },
+          body: JSON.stringify({ text }),
+        }
+
+        fetch(apiUrl, requestOptions)
+          .then((response) => {
+            if (response.ok) {
+              return response.json()
+            } else if (response.status === 401) {
+              throw new Error("Unauthorized")
+            } else {
+              throw new Error("Error sending text to API")
+            }
+          })
+          .then((data) => {
+            console.log("API response:", data)
+            showApiResponse(data)
+          })
+          .catch((error) => {
+            console.error("Error:", error)
+            if (error.message === "Unauthorized") {
+              // Handle unauthorized access, e.g., prompt the user to log in
+              console.log("User is not authenticated")
+            }
+          })
       } else {
-        throw new Error("Error sending text to API")
+        // Cookie not found, consider the user as not authenticated
+        console.log("Access token cookie not found")
+        // Handle the case where the user is not authenticated
       }
-    })
-    .then((data) => {
-      console.log("API response:", data)
-      displayApiResponse(data)
-    })
-    .catch((error) => {
-      console.error("Error:", error)
-    })
+    }
+  )
 }
 
-function displayApiResponse(data) {
-  const popupWidth = 500
-  const popupHeight = 400
-
-  // Get the current window's dimensions
-  chrome.windows.getCurrent((currentWindow) => {
-    const screenWidth = currentWindow.width
-    const screenHeight = currentWindow.height
-
-    // Calculate the position of the popup window to center it on the screen
-    const left = Math.floor((screenWidth - popupWidth) / 2)
-    const top = Math.floor((screenHeight - popupHeight) / 2)
-
-    chrome.windows.create(
-      {
-        url: "apiResponse.html",
-        type: "popup",
-        width: popupWidth,
-        height: popupHeight,
-        left: left,
-        top: top,
-      },
-      (window) => {
-        // Send the API response to the popup window after a short delay
-        setTimeout(() => {
-          chrome.runtime.sendMessage({ type: "apiResponse", data })
-        }, 100)
+function openPopup() {
+  // Check if the popup is already open
+  chrome.tabs.query(
+    { url: chrome.runtime.getURL("apiResponse.html") },
+    (tabs) => {
+      if (tabs.length === 0) {
+        // Popup is not open, create it
+        chrome.windows.create(
+          {
+            url: chrome.runtime.getURL("apiResponse.html"),
+            type: "popup",
+            width: 500,
+            height: 400,
+          },
+          (window) => {
+            // Popup window created
+            // Send the "showLoading" message to display the loading message
+            chrome.runtime.sendMessage({ type: "showLoading" })
+          }
+        )
       }
-    )
-  })
+    }
+  )
+}
+
+function showApiResponse(data) {
+  // Send the API response to the popup
+  chrome.runtime.sendMessage({ type: "apiResponse", data: data })
 }
 
 chrome.contextMenus.onClicked.addListener(handleContextMenuClick)
@@ -97,5 +119,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "getApiResponse") {
     // Retrieve the API response data from the background script
     sendResponse({ data: request.data })
+  }
+})
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === "setPopupHtml") {
+    // Set the popup's HTML content
+    document.documentElement.innerHTML = request.html
   }
 })

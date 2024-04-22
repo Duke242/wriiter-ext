@@ -35,6 +35,11 @@
         height: 32px;
         margin-right: 10px;
       }
+
+      #apiResponseContainer {
+        margin-top: 20px;
+        display: none;
+      }
     </style>
     <script src="index.js" defer></script>
   </head>
@@ -45,5 +50,8 @@
     </header>
     <div id="dashboardContent"></div>
     <button id="signInButton">Sign In</button>
+    <div id="loadingMessage">Loading...</div>
+
+    <div id="apiResponseContainer"></div>
   </body>
 </html>
