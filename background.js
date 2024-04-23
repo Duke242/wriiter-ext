@@ -1,32 +1,34 @@
-const contextMenuItem = {
-  id: "my-context-menu",
-  title: "Wriiter",
-  contexts: ["page", "selection"],
-}
-
-chrome.contextMenus.create(contextMenuItem, () => {})
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "wriiter-extension-context-menu",
+    title: "Wriiter",
+    contexts: ["page", "selection"],
+  })
+  console.log("Context menu created")
+})
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "my-context-menu") {
+  if (info.menuItemId === "wriiter-extension-context-menu") {
     if (info.selectionText) {
       const selectedText = info.selectionText
-
       sendTextToAPI(selectedText)
-
       openPopup()
     } else {
       console.log("No text selected")
+      return
     }
   }
 })
 
 function sendTextToAPI(text) {
-  const apiUrl = "http://localhost:3000/api/openai"
+  // const apiUrl = "https://wriiter.co/api/ai";
+  const apiUrl = "http://localhost:3000/api/ai"
 
   // Get the user's access token from the website's cookies
   chrome.cookies.get(
     {
-      url: "https://www.wriiter.co", // Replace with your website's URL
+      // url: "https://www.wriiter.co", // Replace with your website's URL
+      url: "http://localhost:3000/api/ai",
       name: "sb-osaezyuvvddcvfitbqyo-auth-token", // Replace with the name of the cookie storing the access token
     },
     (cookie) => {
@@ -47,59 +49,85 @@ function sendTextToAPI(text) {
             if (response.ok) {
               return response.json()
             } else if (response.status === 401) {
+              console.log("Unauthorized")
               throw new Error("Unauthorized")
+            } else if (response.status === 403) {
+              console.log("Access Denied")
+              throw new Error("Access Denied")
             } else {
+              console.log("Error sending text to API")
               throw new Error("Error sending text to API")
             }
           })
           .then((data) => {
-            console.log("API response:", data)
             showApiResponse(data)
           })
           .catch((error) => {
             console.error("Error:", error)
             if (error.message === "Unauthorized") {
               // Handle unauthorized access, e.g., prompt the user to log in
-              console.log("User is not authenticated")
+
+              showApiResponse({ status: 401 })
+            } else if (error.message === "Access Denied") {
+              // Handle access denied, e.g., prompt the user to subscribe
+              console.log("User is not subscribed")
+              showApiResponse({ status: 403 })
+            } else {
+              // Handle other errors
+              showApiResponse({ status: 500 })
             }
           })
       } else {
         // Cookie not found, consider the user as not authenticated
         console.log("Access token cookie not found")
         // Handle the case where the user is not authenticated
+        showApiResponse({ status: 401 })
       }
     }
   )
 }
 
+// ... (previous code remains the same)
+
 function openPopup() {
-  // Check if the popup is already open
   chrome.tabs.query(
     { url: chrome.runtime.getURL("apiResponse.html") },
     (tabs) => {
       if (tabs.length === 0) {
-        // Popup is not open, create it
         chrome.windows.create(
           {
             url: chrome.runtime.getURL("apiResponse.html"),
             type: "popup",
-            width: 500,
+            width: 450,
             height: 400,
           },
           (window) => {
-            // Popup window created
-            // Send the "showLoading" message to display the loading message
-            chrome.runtime.sendMessage({ type: "showLoading" })
+            console.log("Popup window created")
+            // Wait for the popup window to load before sending messages
+            chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
+              if (info.status === "complete" && tabId === window.tabs[0].id) {
+                chrome.tabs.onUpdated.removeListener(listener)
+                chrome.runtime.sendMessage({ type: "showLoading" })
+                console.log("Sent message to show loading")
+              }
+            })
           }
         )
+      } else {
+        chrome.windows.update(tabs[0].windowId, { focused: true }, (window) => {
+          chrome.runtime.sendMessage({ type: "resetLoading" })
+        })
       }
     }
   )
 }
 
+// ... (rest of the code remains the same)
+
 function showApiResponse(data) {
-  // Send the API response to the popup
   chrome.runtime.sendMessage({ type: "apiResponse", data: data })
+
+  chrome.runtime.sendMessage({ type: "removeLoading" })
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

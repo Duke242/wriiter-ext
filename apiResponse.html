@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>API Response</title>
+    <title>Wriiter</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      html,
       body {
-        font-family: Arial, sans-serif;
-        font-size: 14px;
+        height: 100%;
         margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Nunito", sans-serif;
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         padding: 16px;
-        width: 300px;
-        height: 200px;
-        overflow-y: auto;
+        box-sizing: border-box;
+        min-height: 200px;
       }
 
       .response-container {
@@ -25,19 +38,41 @@
 
       .response-label {
         font-weight: bold;
+        color: gray;
       }
 
       .loading {
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 100%;
         font-size: 18px;
         color: #888;
+      }
+
+      header {
+        color: rgb(162, 201, 246);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        font-weight: 100;
+      }
+
+      header img {
+        width: 40px;
+        height: 40px;
+        margin-right: 8px;
+      }
+
+      #api-response {
+        text-align: center;
       }
     </style>
   </head>
   <body>
+    <header>
+      <img src="icon32.png" alt="Wriiter Icon" />
+    </header>
     <div id="api-response" class="loading">Loading...</div>
     <script src="apiResponse.js"></script>
   </body>

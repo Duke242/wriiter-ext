@@ -13,7 +13,8 @@ async function checkAuthState() {
   // Retrieve the access token from the website's cookies
   chrome.cookies.get(
     {
-      url: "https://www.wriiter.co", // Replace with your website's URL
+      // url: "https://www.wriiter.co", // Replace with your website's URL
+      url: "http://localhost:3000",
       name: "sb-osaezyuvvddcvfitbqyo-auth-token", // Replace with the name of the cookie storing the access token
     },
     (cookie) => {
@@ -42,9 +43,40 @@ function renderDashboard() {
   // Mock dashboard content for demonstration purposes
   dashboardContent.style.display = "block" // Show the dashboard content
   loadingMessage.style.display = "none" // Hide the loading message
-  dashboardContent.innerHTML =
-    "<h1>Dashboard Content</h1><p>Welcome to the dashboard!</p>"
-
+  dashboardContent.innerHTML = `
+    <style>
+        #dashboard-content {
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        #dashboard-content p {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        #dashboard-content ol {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        #dashboard-content li {
+            margin-bottom: 10px;
+        }
+        
+      
+    </style>
+    
+    <div id="dashboard-content">
+        <p>Make sure to be signed in and subscribed to wriiter.co</p>
+        
+        <ol>
+            <li>Highlight the text you want to get feedback on</li>
+            <li>Right-click on the highlighted text</li>
+            <li>Select "Wriiter" from the context menu</li>
+            </ol>
+    </div>
+`
   // Hide the sign-in button
   signInButton.style.display = "none"
 }
@@ -52,6 +84,7 @@ function renderDashboard() {
 function renderSignInButton() {
   signInButton.style.display = "block" // Show the sign-in button
   dashboardContent.style.display = "none" // Hide the dashboard content
+  loadingMessage.style.display = "none" // Hide the loading message
 
   signInButton.addEventListener("click", async () => {
     chrome.tabs.create({ url: "http://localhost:3000/" })
