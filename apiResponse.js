@@ -33,6 +33,16 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
           </div>
         `
+      } else if (status === 400) {
+        // Text exceeds character limit
+        responseContent = `
+          <div class="response-container">
+            <div class="response-item">
+              <div class="response-label">Error:</div>
+              <div>Text exceeds the 2000 characters limit. Please select a shorter text.</div>
+            </div>
+          </div>
+        `
       } else if (status === 401) {
         // User is not authenticated
         responseContent = `
@@ -40,6 +50,16 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="response-item">
               <div class="response-label">Error:</div>
               <div>Unauthorized. Please log in to access the service.</div>
+            </div>
+          </div>
+        `
+      } else if (status === 429) {
+        // Query count exceeded
+        responseContent = `
+          <div class="response-container">
+            <div class="response-item">
+              <div class="response-label">Error:</div>
+              <div>Query count exceeded. Please upgrade your subscription or wait until the next billing cycle.</div>
             </div>
           </div>
         `

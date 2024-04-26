@@ -11,8 +11,21 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "wriiter-extension-context-menu") {
     if (info.selectionText) {
       const selectedText = info.selectionText
-      sendTextToAPI(selectedText)
-      openPopup()
+      if (selectedText.length <= 2000) {
+        sendTextToAPI(selectedText)
+        openPopup()
+      } else {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          chrome.scripting.executeScript({
+            target: { tabId: tabs[0].id },
+            func: () => {
+              alert(
+                "Wriiter Extension - Text Limit Exceeded\n\nThe selected text exceeds the maximum length of 2000 characters allowed by Wriiter. Please select a shorter text."
+              )
+            },
+          })
+        })
+      }
     } else {
       console.log("No text selected")
       return
@@ -54,6 +67,9 @@ function sendTextToAPI(text) {
             } else if (response.status === 403) {
               console.log("Access Denied")
               throw new Error("Access Denied")
+            } else if (response.status === 429) {
+              console.log("Query count exceeded")
+              throw new Error("Query count exceeded")
             } else {
               console.log("Error sending text to API")
               throw new Error("Error sending text to API")
@@ -72,6 +88,9 @@ function sendTextToAPI(text) {
               // Handle access denied, e.g., prompt the user to subscribe
               console.log("User is not subscribed")
               showApiResponse({ status: 403 })
+            } else if (error.message === "Query count exceeded") {
+              console.log("Query count exceeded")
+              showApiResponse({ status: 429 })
             } else {
               // Handle other errors
               showApiResponse({ status: 500 })
