@@ -7,6 +7,26 @@ chrome.runtime.onInstalled.addListener(() => {
   console.log("Context menu created")
 })
 
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === "replaceText") {
+    const suggestion = request.suggestion
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        func: (suggestion) => {
+          const selection = window.getSelection()
+          if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0)
+            range.deleteContents()
+            range.insertNode(document.createTextNode(suggestion))
+          }
+        },
+        args: [suggestion],
+      })
+    })
+  }
+})
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "wriiter-extension-context-menu") {
     if (info.selectionText) {

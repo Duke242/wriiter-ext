@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "My Extension",
+  "name": "Wriiter",
   "icons": {
     "32": "icon32.png",
     "16": "icon32.png",

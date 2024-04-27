@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
           </div>
         `
+        replaceTextButton.style.display = "none" // Hide the button for error responses
       } else if (status === 401) {
         // User is not authenticated
         responseContent = `
