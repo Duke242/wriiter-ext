@@ -4,7 +4,6 @@ chrome.runtime.onInstalled.addListener(() => {
     title: "Wriiter",
     contexts: ["page", "selection"],
   })
-  console.log("Context menu created")
 })
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -47,21 +46,20 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         })
       }
     } else {
-      console.log("No text selected")
       return
     }
   }
 })
 
 function sendTextToAPI(text) {
-  // const apiUrl = "https://wriiter.co/api/ai";
-  const apiUrl = "http://localhost:3000/api/ai"
+  const apiUrl = "https://wriiter.co/api/ai"
+  // const apiUrl = "http://localhost:3000/api/ai"
 
   // Get the user's access token from the website's cookies
   chrome.cookies.get(
     {
-      // url: "https://www.wriiter.co", // Replace with your website's URL
-      url: "http://localhost:3000/api/ai",
+      url: "https://www.wriiter.co", // Replace with your website's URL
+      // url: "http://localhost:3000/api/ai",
       name: "sb-osaezyuvvddcvfitbqyo-auth-token", // Replace with the name of the cookie storing the access token
     },
     (cookie) => {
@@ -82,16 +80,12 @@ function sendTextToAPI(text) {
             if (response.ok) {
               return response.json()
             } else if (response.status === 401) {
-              console.log("Unauthorized")
               throw new Error("Unauthorized")
             } else if (response.status === 403) {
-              console.log("Access Denied")
               throw new Error("Access Denied")
             } else if (response.status === 429) {
-              console.log("Query count exceeded")
               throw new Error("Query count exceeded")
             } else {
-              console.log("Error sending text to API")
               throw new Error("Error sending text to API")
             }
           })
@@ -102,14 +96,10 @@ function sendTextToAPI(text) {
             console.error("Error:", error)
             if (error.message === "Unauthorized") {
               // Handle unauthorized access, e.g., prompt the user to log in
-
               showApiResponse({ status: 401 })
             } else if (error.message === "Access Denied") {
-              // Handle access denied, e.g., prompt the user to subscribe
-              console.log("User is not subscribed")
               showApiResponse({ status: 403 })
             } else if (error.message === "Query count exceeded") {
-              console.log("Query count exceeded")
               showApiResponse({ status: 429 })
             } else {
               // Handle other errors
@@ -117,10 +107,9 @@ function sendTextToAPI(text) {
             }
           })
       } else {
-        // Cookie not found, consider the user as not authenticated
-        console.log("Access token cookie not found")
-        // Handle the case where the user is not authenticated
-        showApiResponse({ status: 401 })
+        setTimeout(() => {
+          showApiResponse({ status: 401 })
+        }, 500)
       }
     }
   )
@@ -141,13 +130,11 @@ function openPopup() {
             height: 400,
           },
           (window) => {
-            console.log("Popup window created")
             // Wait for the popup window to load before sending messages
             chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
               if (info.status === "complete" && tabId === window.tabs[0].id) {
                 chrome.tabs.onUpdated.removeListener(listener)
                 chrome.runtime.sendMessage({ type: "showLoading" })
-                console.log("Sent message to show loading")
               }
             })
           }

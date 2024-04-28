@@ -4,17 +4,14 @@ const apiResponseContainer = document.getElementById("apiResponseContainer")
 const loadingMessage = document.getElementById("loadingMessage")
 
 window.addEventListener("DOMContentLoaded", () => {
-  console.log("dash board content loaded")
   checkAuthState()
 })
 
 async function checkAuthState() {
-  console.log("Checking auth state...")
   // Retrieve the access token from the website's cookies
   chrome.cookies.get(
     {
-      // url: "https://www.wriiter.co", // Replace with your website's URL
-      url: "http://localhost:3000",
+      url: "https://www.wriiter.co", // Replace with your website's URL
       name: "sb-osaezyuvvddcvfitbqyo-auth-token", // Replace with the name of the cookie storing the access token
     },
     (cookie) => {
@@ -87,7 +84,7 @@ function renderSignInButton() {
   loadingMessage.style.display = "none" // Hide the loading message
 
   signInButton.addEventListener("click", async () => {
-    chrome.tabs.create({ url: "http://localhost:3000/" })
+    chrome.tabs.create({ url: "http://wriiter.co/" })
     chrome.runtime.sendMessage({ redirect: true })
   })
 }
